@@ -5,45 +5,48 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService,
+                          JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.customUserDetailsService = customUserDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Deshabilita CSRF con la nueva sintaxis
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))                
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // Permitir acceso público
-                        .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a la consola H2
-                        .requestMatchers("/api/usuarios/**").hasRole("GERENTE") // Solo GERENTE puede acceder a /api/usuarios
-                        .requestMatchers("/api/inventario/**").hasAnyRole("GERENTE", "EMPLEADO") // GERENTE y EMPLEADO pueden acceder a /api/inventario
-                        .requestMatchers("/api/ventas/**", "/api/detalleVenta/**").hasAnyRole("GERENTE", "EMPLEADO") // GERENTE y EMPLEADO pueden acceder a /api/ventas y /api/detalleVenta
-                        .requestMatchers("/api/productos/**", "/api/categorias/**").hasAnyRole("GERENTE", "EMPLEADO", "CLIENTE") // GERENTE, EMPLEADO y CLIENTE pueden acceder a /api/productos y /api/categorias
-                        .requestMatchers("/api/carrito/**").hasAnyRole("GERENTE", "EMPLEADO", "CLIENTE") // GERENTE, EMPLEADO y CLIENTE pueden acceder a /api/carrito
-                        .anyRequest().authenticated() // Requiere autenticación para el resto
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
+                        .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/api/inventario/**").hasAnyRole("ADMINISTRADOR", "EMPLEADO")
+                        .requestMatchers("/api/ventas/**", "/api/detalleVenta/**").hasAnyRole("ADMINISTRADOR", "EMPLEADO")
+                        .requestMatchers("/api/productos/**", "/api/categorias/**").hasAnyRole("ADMINISTRADOR", "EMPLEADO", "CLIENTE")
+                        .requestMatchers("/api/carrito/**").hasAnyRole("ADMINISTRADOR", "EMPLEADO", "CLIENTE")
+                        .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .defaultSuccessUrl("/public/hola", true) // Redirigir después del login
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/public/hola")
-                        .permitAll()
-                );
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);              
+        
         return http.build();
     }
 

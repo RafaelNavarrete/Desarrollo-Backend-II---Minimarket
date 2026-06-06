@@ -26,8 +26,8 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        Rol rolGerente = rolRepository.findByNombre("ROLE_GERENTE")
-                .orElseGet(() -> rolRepository.save(crearRol("ROLE_GERENTE")));
+        Rol rolAdministrador = rolRepository.findByNombre("ROLE_ADMINISTRADOR")
+                .orElseGet(() -> rolRepository.save(crearRol("ROLE_ADMINISTRADOR")));
 
         Rol rolEmpleado = rolRepository.findByNombre("ROLE_EMPLEADO")
                 .orElseGet(() -> rolRepository.save(crearRol("ROLE_EMPLEADO")));
@@ -35,12 +35,12 @@ public class DataInitializer implements CommandLineRunner {
         Rol rolCliente = rolRepository.findByNombre("ROLE_CLIENTE")
                 .orElseGet(() -> rolRepository.save(crearRol("ROLE_CLIENTE")));
 
-        if (usuarioRepository.findByUsername("gerente").isEmpty()) {
-            Usuario gerente = new Usuario();
-            gerente.setUsername("gerente");
-            gerente.setPassword(passwordEncoder.encode("gerente123"));
-            gerente.setRoles(Set.of(rolGerente));
-            usuarioRepository.save(gerente);
+        if (usuarioRepository.findByUsername("administrador").isEmpty()) {
+            Usuario administrador = new Usuario();
+            administrador.setUsername("administrador");
+            administrador.setPassword(passwordEncoder.encode("administrador123"));
+            administrador.setRoles(Set.of(rolAdministrador));
+            usuarioRepository.save(administrador);
         }
 
         if (usuarioRepository.findByUsername("empleado").isEmpty()) {
