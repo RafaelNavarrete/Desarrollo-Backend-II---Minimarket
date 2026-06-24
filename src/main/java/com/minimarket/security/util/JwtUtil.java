@@ -2,6 +2,8 @@ package com.minimarket.security.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,11 +12,14 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "MinimarketClaveSecretaPruebasJWT123456789";
-    private static final long EXPIRATION_TIME = 86400000; // 24 horas de expiración
+    @Value("${jwt.secret}")
+    private String secretKey;
 
+    @Value("${jwt.expiration}")
+    private long expirationTime;
+    
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public String generateToken(String username, String role) {
@@ -22,7 +27,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
