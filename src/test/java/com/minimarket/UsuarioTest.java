@@ -1,5 +1,21 @@
-package com.minimarket
+package com.minimarket;
 
+import com.minimarket.entity.Rol;
+import com.minimarket.entity.Usuario;
+import com.minimarket.repository.UsuarioRepository;
+import com.minimarket.service.impl.UsuarioServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UsuarioTest {
@@ -8,7 +24,7 @@ public class UsuarioTest {
     private UsuarioRepository usuarioRepository;
 
     @InjectMocks
-    private UsuariosServiceImpl usuariosService;
+    private UsuarioServiceImpl usuarioService;
 
     private Usuario usuario;
     private Rol rolAdmin;
