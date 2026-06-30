@@ -58,7 +58,7 @@ public class VentaTest {
         detalle.setId(1L);
         detalle.setProducto(producto);
         detalle.setCantidad(2);
-        detalle.setPrecio(1500.0);  // Ahora usa setPrecio() correctamente
+        detalle.setPrecio(1500.0); 
 
         venta = new Venta();
         venta.setId(1L);
