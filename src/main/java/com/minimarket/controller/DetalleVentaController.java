@@ -61,12 +61,19 @@ public class DetalleVentaController {
     @Operation(summary = "Crear un nuevo detalle de venta", description = "Registra un nuevo detalle asociando un producto y una cantidad a una venta.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Detalle de venta creado correctamente",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DetalleVenta.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DetalleVenta.class))),
+            @ApiResponse(responseCode = "400", description = "Faltan datos de producto o venta", content = @Content)
     })
     @PostMapping
-    public EntityModel<DetalleVenta> guardarDetalleVenta(@RequestBody DetalleVenta detalleVenta) {
+    public ResponseEntity<?> guardarDetalleVenta(@RequestBody DetalleVenta detalleVenta) {
+        if (detalleVenta.getProducto() == null || detalleVenta.getProducto().getId() == null) {
+            return ResponseEntity.badRequest().body("Debe indicar un producto válido para el detalle de venta.");
+        }
+        if (detalleVenta.getVenta() == null || detalleVenta.getVenta().getId() == null) {
+            return ResponseEntity.badRequest().body("Debe indicar una venta válida para el detalle de venta.");
+        }
         DetalleVenta guardado = detalleVentaService.save(detalleVenta);
-        return toModel(guardado);
+        return ResponseEntity.ok(toModel(guardado));
     }
 
     @Operation(summary = "Actualizar un detalle de venta", description = "Actualiza los datos de un detalle de venta existente según su ID.")

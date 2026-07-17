@@ -61,12 +61,16 @@ public class CarritoController {
     @Operation(summary = "Agregar un producto al carrito", description = "Crea un nuevo registro en el carrito asociando un producto y una cantidad a un usuario.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Producto agregado correctamente al carrito",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Carrito.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Carrito.class))),
+            @ApiResponse(responseCode = "400", description = "No se indicó un producto válido", content = @Content)
     })
     @PostMapping
-    public EntityModel<Carrito> agregarProductoAlCarrito(@RequestBody Carrito carrito) {
+    public ResponseEntity<?> agregarProductoAlCarrito(@RequestBody Carrito carrito) {
+        if (carrito.getProducto() == null || carrito.getProducto().getId() == null) {
+            return ResponseEntity.badRequest().body("Debe indicar un producto válido para agregar al carrito.");
+        }
         Carrito guardado = carritoService.save(carrito);
-        return toModel(guardado);
+        return ResponseEntity.ok(toModel(guardado));
     }
 
     @Operation(summary = "Actualizar un item del carrito", description = "Actualiza la cantidad o los datos de un item existente en el carrito.")

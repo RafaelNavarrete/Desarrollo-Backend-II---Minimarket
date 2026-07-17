@@ -61,12 +61,16 @@ public class InventarioController {
     @Operation(summary = "Registrar un movimiento de inventario", description = "Crea un nuevo movimiento de entrada o salida de stock para un producto.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Movimiento registrado correctamente",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Inventario.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Inventario.class))),
+            @ApiResponse(responseCode = "400", description = "No se indicó un producto válido", content = @Content)
     })
     @PostMapping
-    public EntityModel<Inventario> registrarMovimiento(@RequestBody Inventario inventario) {
+    public ResponseEntity<?> registrarMovimiento(@RequestBody Inventario inventario) {
+        if (inventario.getProducto() == null || inventario.getProducto().getId() == null) {
+            return ResponseEntity.badRequest().body("Debe indicar un producto válido para registrar el movimiento.");
+        }
         Inventario guardado = inventarioService.save(inventario);
-        return toModel(guardado);
+        return ResponseEntity.ok(toModel(guardado));
     }
 
     @Operation(summary = "Actualizar un movimiento de inventario", description = "Actualiza los datos de un movimiento existente según su ID.")

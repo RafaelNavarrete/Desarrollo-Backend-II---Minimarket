@@ -1,5 +1,7 @@
 package com.minimarket.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -18,7 +20,8 @@ public class Producto {
     private Integer stock;
 
     @ManyToOne
-    @JoinColumn(name = "categoria_id", nullable = false)
+    @JoinColumn(name = "categoria_id")
+    @JsonIgnoreProperties("productos")
     private Categoria categoria;
 
     // Getters y Setters
